@@ -45,7 +45,7 @@
       imageModel = await tmImage.load(imageModelURL + "model.json", imageModelURL + "metadata.json");
 
       // Load audio model
-      audioModel = await speechCommands.create("BROWSER_FFT", undefined, audioModelURL + "model.json", audioMetadataURL);
+      audioModel = await speechCommands.create("BROWSER_FFT", undefined, audioModelURL, audioMetadataURL);
       await audioModel.ensureModelLoaded();
       audioModel.listen(result => {
         const scores = result.scores;
