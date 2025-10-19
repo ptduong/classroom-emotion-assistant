@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Classroom Emotion Assistant</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; }
+    video { width: 320px; height: 240px; border: 1px solid black; }
+    canvas { display: none; }
+    #results { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Classroom Emotion Assistant</h1>
+  <video id="webcam" autoplay playsinline></video>
+  <canvas id="canvas" width="320" height="240"></canvas>
+  <div id="results">
+    <h2>Image Emotion: <span id="imageEmotion">Loading...</span></h2>
+    <h2>Audio Emotion: <span id="audioEmotion">Loading...</span></h2>
+  </div>
+  <button onclick="init()">Start</button>
+
+  <script>
+    const imageModelURL = "https://teachablemachine.withgoogle.com/models/vwVERB4xC/";
+    const audioModelURL = "https://teachablemachine.withgoogle.com/models/TcB0ZWXJh/";
+    const audioMetadataURL = audioModelURL.replace("model.json", "metadata.json");
+
+    let imageModel, audioModel;
+    let webcam, canvas, ctx;
+
+    async function init() {
+      webcam = document.getElementById("webcam");
+      canvas = document.getElementById("canvas");
+      ctx = canvas.getContext("2d");
+
+      // Start webcam
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      webcam.srcObject = stream;
+      await new Promise(resolve => webcam.onloadedmetadata = resolve);
+
+      // Load image model
+      imageModel = await tmImage.load(imageModelURL + "model.json", imageModelURL + "metadata.json");
+
+      // Load audio model
+      audioModel = await speechCommands.create("BROWSER_FFT", undefined, audioModelURL + "model.json", audioMetadataURL);
+      await audioModel.ensureModelLoaded();
+      audioModel.listen(result => {
+        const scores = result.scores;
+        const labels = audioModel.wordLabels();
+        const topScore = Math.max(...scores);
+        const topLabel = labels[scores.indexOf(topScore)];
+        document.getElementById("audioEmotion").innerText = topLabel;
+      }, { probabilityThreshold: 0.75 });
+
+      // Start image prediction loop
+      predictImage();
+    }
+
+    async function predictImage() {
+      ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+      const prediction = await imageModel.predict(canvas);
+      const topPrediction = prediction.reduce((max, p) => p.probability > max.probability ? p : max, prediction[0]);
+      document.getElementById("imageEmotion").innerText = topPrediction.className;
+      requestAnimationFrame(predictImage);
+    }
+  </script>
+</body>
+</html>
