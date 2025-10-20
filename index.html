@@ -50,26 +50,12 @@
 
     // Hàm chuyển văn bản thành giọng nói
     function speak(text) {
-	  if ('speechSynthesis' in window) {
-		const msg = new SpeechSynthesisUtterance(text);
-		msg.lang = 'vi-VN';
-
-		// Lấy danh sách voice tiếng Việt
-		const voices = window.speechSynthesis.getVoices();
-		const viVoices = voices.filter(v => v.lang === 'vi-VN');
-		if (viVoices.length > 0) {
-		  // Ưu tiên giọng nữ nếu có
-		  const femaleVoice = viVoices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('nữ'));
-		  msg.voice = femaleVoice || viVoices[0];
-		}
-
-		msg.rate = 1;    // tốc độ đọc tự nhiên (0.8 - 1.2)
-		msg.pitch = 1.1; // cao độ tươi vui
-		msg.volume = 1;  // âm lượng tối đa
-
-		window.speechSynthesis.cancel(); // Dừng mọi phát hiện tại
-		window.speechSynthesis.speak(msg);
-	  }
+      if ('speechSynthesis' in window) {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'vi-VN'; // Tiếng Việt
+        window.speechSynthesis.cancel(); // Dừng mọi phát hiện tại
+        window.speechSynthesis.speak(msg);
+      }
     }
 
     // Logic phản hồi của robot dựa trên cảm xúc
@@ -135,5 +121,68 @@
       setTimeout(predictImageLoop, 1000); // Dự đoán mỗi giây
     }
   </script>
+
+<div id="emotionText" style="margin-top:20px; font-size:18px;">Cảm xúc: ...</div>
+
+<script>
+  let lastEmotion = null;
+  let emotionTimeout = null;
+  const EMOTION_STABLE_TIME = 2000; // 2 giây
+
+  function speak(text) {
+    if ('speechSynthesis' in window) {
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'vi-VN';
+
+      const voices = window.speechSynthesis.getVoices();
+      const viVoices = voices.filter(v => v.lang === 'vi-VN');
+      if (viVoices.length > 0) {
+        const femaleVoice = viVoices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('nữ'));
+        msg.voice = femaleVoice || viVoices[0];
+      }
+
+      msg.rate = 1;
+      msg.pitch = 1.1;
+      msg.volume = 1;
+
+      window.speechSynthesis.speak(msg);
+    }
+  }
+
+  function onEmotionChanged(newEmotion) {
+    if (newEmotion === lastEmotion) return;
+    if (emotionTimeout) clearTimeout(emotionTimeout);
+
+    emotionTimeout = setTimeout(() => {
+      lastEmotion = newEmotion;
+      document.getElementById('emotionText').innerText = 'Cảm xúc: ' + newEmotion;
+
+      let message = '';
+      if (newEmotion === 'vui') {
+        message = 'Bạn đang vui. Mình rất vui khi thấy bạn như vậy!';
+      } else if (newEmotion === 'buồn') {
+        message = 'Bạn đang buồn. Mình luôn ở đây nếu bạn muốn chia sẻ.';
+      } else if (newEmotion === 'lo lắng') {
+        message = 'Bạn đang lo lắng. Hãy hít thở sâu và nói cho mình biết điều gì đang làm bạn lo.';
+      } else {
+        message = 'Cảm xúc của bạn là ' + newEmotion;
+      }
+
+      speak(message);
+    }, EMOTION_STABLE_TIME);
+  }
+
+  // Ví dụ minh họa: thay đổi cảm xúc bằng nút
+  function simulateEmotion(emotion) {
+    onEmotionChanged(emotion);
+  }
+</script>
+
+<div style="margin-top:10px;">
+  <button onclick="simulateEmotion('vui')">😊 Vui</button>
+  <button onclick="simulateEmotion('buồn')">😢 Buồn</button>
+  <button onclick="simulateEmotion('lo lắng')">😟 Lo lắng</button>
+</div>
+
 </body>
 </html>
