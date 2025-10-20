@@ -32,9 +32,9 @@
   <button id="startBtn" onclick="startAssistant()">Bắt đầu trò chuyện với Robot</button>
 
   <!-- Thư viện AI -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
+  </script> https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest</script>
+  </script> https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js</script>
+  </script> https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js</script>
 
   <script>
     // Thay bằng link model của bạn
@@ -47,20 +47,33 @@
     let imageModel, audioModel;
     let webcam, canvas, ctx;
 
+    // Hàm chuyển văn bản thành giọng nói
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'vi-VN'; // Tiếng Việt
+        window.speechSynthesis.cancel(); // Dừng mọi phát hiện tại
+        window.speechSynthesis.speak(msg);
+      }
+    }
+
     // Logic phản hồi của robot dựa trên cảm xúc
     function robotRespond(emotion) {
       const actionDiv = document.getElementById("robotAction");
+      let response = "";
       if (emotion === "Buồn" || emotion === "Sad") {
-        actionDiv.innerHTML = "🤗 Robot: Bạn đang buồn à? Hãy kể cho mình nghe nhé! Mình sẽ kể chuyện vui cho bạn nghe!";
+        response = "🤗 Robot: Bạn đang buồn à? Hãy kể cho mình nghe nhé! Mình sẽ kể chuyện vui cho bạn nghe!";
       } else if (emotion === "Lo lắng" || emotion === "Anxious") {
-        actionDiv.innerHTML = "🤖 Robot: Đừng lo, mọi chuyện sẽ ổn thôi! Hít thở sâu nào!";
+        response = "🤖 Robot: Đừng lo, mọi chuyện sẽ ổn thôi! Hít thở sâu nào!";
       } else if (emotion === "Vui" || emotion === "Happy") {
-        actionDiv.innerHTML = "😄 Robot: Tuyệt vời! Bạn đang rất vui, hãy lan tỏa năng lượng tích cực nhé!";
+        response = "😄 Robot: Tuyệt vời! Bạn đang rất vui, hãy lan tỏa năng lượng tích cực nhé!";
       } else if (emotion === "Tức giận" || emotion === "Angry") {
-        actionDiv.innerHTML = "😌 Robot: Khi nào bạn bình tĩnh lại, mình sẽ cùng bạn chơi trò chơi thư giãn nhé!";
+        response = "😌 Robot: Khi nào bạn bình tĩnh lại, mình sẽ cùng bạn chơi trò chơi thư giãn nhé!";
       } else {
-        actionDiv.innerHTML = "🤖 Robot: Mình luôn ở đây để lắng nghe bạn!";
+        response = "🤖 Robot: Mình luôn ở đây để lắng nghe bạn!";
       }
+      actionDiv.innerHTML = response;
+      speak(response); // Phát ra loa
     }
 
     async function startAssistant() {
@@ -104,4 +117,3 @@
   </script>
 </body>
 </html>
-``
