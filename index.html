@@ -45,18 +45,7 @@
 
     let imageModel, audioModel;
     let webcam, canvas, ctx;
-    let lastSpokenEmotion = ""; // Lưu cảm xúc đã phát âm thanh
-
-    // Hàm chuyển văn bản thành giọng nói
-    function speak(text) {
-      if ('speechSynthesis' in window) {
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'vi-VN'; // Tiếng Việt
-        window.speechSynthesis.cancel(); // Dừng mọi phát hiện tại
-        window.speechSynthesis.speak(msg);
-      }
-    }
-
+	
     // Logic phản hồi của robot dựa trên cảm xúc
     function robotRespond(emotion) {
       const actionDiv = document.getElementById("robotAction");
@@ -73,12 +62,6 @@
         response = "🤖 Robot: Mình luôn ở đây để lắng nghe bạn!";
       }
       actionDiv.innerHTML = response;
-
-      // Chỉ phát âm thanh khi cảm xúc thay đổi
-      if (emotion !== lastSpokenEmotion) {
-        speak(response);
-        lastSpokenEmotion = emotion;
-      }
     }
 
     async function startAssistant() {
@@ -120,54 +103,5 @@
       setTimeout(predictImageLoop, 1000); // Dự đoán mỗi giây
     }
   </script>
-
-<script>
-// Hàm debounce
-function debounce(func, wait) {
-  let timeout;
-  return function(...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  };
-}
-
-// Hàm speak tối ưu tiếng Việt
-function speakVietnamese(text) {
-  if ('speechSynthesis' in window) {
-    const utter = new SpeechSynthesisUtterance(text);
-    const voices = window.speechSynthesis.getVoices();
-    utter.lang = 'vi-VN';
-    utter.voice = voices.find(v => v.lang === 'vi-VN') || null;
-    window.speechSynthesis.speak(utter);
-  }
-}
-
-// Biến toàn cục để lưu cảm xúc đã phát âm
-let lastSpokenEmotion = null;
-
-// Hàm phản hồi của robot, tích hợp debounce và speakVietnamese
-const robotRespond = debounce(function(emotion) {
-  const actionDiv = document.getElementById("robotAction");
-  let response = "";
-  if (emotion === "Buồn" || emotion === "Sad") {
-    response = "🤗 Robot: Bạn đang buồn à? Hãy kể cho mình nghe nhé! Mình sẽ kể chuyện vui cho bạn nghe!";
-  } else if (emotion === "Lo lắng" || emotion === "Anxious") {
-    response = "🤖 Robot: Đừng lo, mọi chuyện sẽ ổn thôi! Hít thở sâu nào!";
-  } else if (emotion === "Vui" || emotion === "Happy") {
-    response = "😄 Robot: Tuyệt vời! Bạn đang rất vui, hãy lan tỏa năng lượng tích cực nhé!";
-  } else if (emotion === "Tức giận" || emotion === "Angry") {
-    response = "😌 Robot: Khi nào bạn bình tĩnh lại, mình sẽ cùng bạn chơi trò chơi thư giãn nhé!";
-  } else {
-    response = "🤖 Robot: Mình luôn ở đây để lắng nghe bạn!";
-  }
-  actionDiv.innerHTML = response;
-
-  // Chỉ phát âm thanh khi cảm xúc thay đổi
-  if (emotion !== lastSpokenEmotion) {
-    speakVietnamese(response);
-    lastSpokenEmotion = emotion;
-  }
-}, 500);
-</script>
 </body>
 </html>
