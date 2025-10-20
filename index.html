@@ -121,7 +121,8 @@
       setTimeout(predictImageLoop, 1000); // Dự đoán mỗi giây
     }
   </script>
-
+</body>
+</html>
 <div style="margin-top: 20px;">
   <h2>🎤 Trợ lý phát âm thanh</h2>
   <button onclick="speakMessage(0)">Chào hỏi</button>
@@ -145,9 +146,20 @@
   function speakMessage(index) {
     const utter = new SpeechSynthesisUtterance(messages[index]);
     utter.lang = 'vi-VN';
+
+    const voices = window.speechSynthesis.getVoices();
+    const viVoices = voices.filter(v => v.lang === 'vi-VN');
+    if (viVoices.length > 0) {
+      const femaleVoice = viVoices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('nữ'));
+      utter.voice = femaleVoice || viVoices[0];
+    }
+
+    utter.rate = 1;
+    utter.pitch = 1.1;
+    utter.volume = 1;
+
     window.speechSynthesis.speak(utter);
   }
-</script>
 
-</body>
-</html>
+  window.speechSynthesis.onvoiceschanged = () => {};
+</script>
