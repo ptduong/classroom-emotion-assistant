@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+
 <html>
 <head>
-  <title>Robot Trợ Lý Tâm Lý Học sinh</title>
-  <meta charset="UTF-8">
-  <style>
+<title>Robot Trợ Lý Tâm Lý Học sinh</title>
+<meta charset="utf-8"/>
+<style>
     body { font-family: Arial, sans-serif; text-align: center; background: #f0f8ff; }
     .robot-header { font-size: 2em; margin-top: 20px; color: #2a6ebb; }
     video { width: 320px; height: 240px; border: 2px solid #2a6ebb; margin-top: 10px; }
@@ -15,28 +16,26 @@
   </style>
 </head>
 <body>
-  <div class="robot-header">🤖 Robot Trợ Lý Tâm Lý Học sinh</div>
-  <video id="webcam" autoplay playsinline></video>
-  <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
-  <div class="emotion-box">
-    <div class="emotion-result">
-      <div>Biểu cảm khuôn mặt</div>
-      <div id="imageEmotion" class="emotion-label">Đang nhận diện...</div>
-    </div>
-    <div class="emotion-result">
-      <div>Giọng nói</div>
-      <div id="audioEmotion" class="emotion-label">Đang nhận diện...</div>
-    </div>
-  </div>
-  <div class="robot-action" id="robotAction"></div>
-  <button id="startBtn" onclick="startAssistant()">Bắt đầu trò chuyện với Robot</button>
-
-  <!-- Thư viện AI -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
-
-  <script>
+<div class="robot-header">🤖 Robot Trợ Lý Tâm Lý Học sinh</div>
+<video autoplay="" id="webcam" playsinline=""></video>
+<canvas height="240" id="canvas" style="display:none;" width="320"></canvas>
+<div class="emotion-box">
+<div class="emotion-result">
+<div>Biểu cảm khuôn mặt</div>
+<div class="emotion-label" id="imageEmotion">Đang nhận diện...</div>
+</div>
+<div class="emotion-result">
+<div>Giọng nói</div>
+<div class="emotion-label" id="audioEmotion">Đang nhận diện...</div>
+</div>
+</div>
+<div class="robot-action" id="robotAction"></div>
+<button id="startBtn" onclick="startAssistant()">Bắt đầu trò chuyện với Robot</button>
+<!-- Thư viện AI -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
+<script>
     // Thay bằng link model của bạn
     <!-- const imageModelURL = "YOUR_IMAGE_MODEL_URL"; -->
     <!-- const audioModelURL = "YOUR_AUDIO_MODEL_URL"; -->
@@ -121,68 +120,46 @@
       setTimeout(predictImageLoop, 1000); // Dự đoán mỗi giây
     }
   </script>
+<div id="emotionText">Cảm xúc: ...</div><script>
+let lastEmotion = null;
+let emotionTimeout = null;
+const EMOTION_STABLE_TIME = 2000; // 2 giây
 
-<div id="emotionText" style="margin-top:20px; font-size:18px;">Cảm xúc: ...</div>
-
-<script>
-  let lastEmotion = null;
-  let emotionTimeout = null;
-  const EMOTION_STABLE_TIME = 2000; // 2 giây
-
-  function speak(text) {
-    if ('speechSynthesis' in window) {
-      const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = 'vi-VN';
-
-      const voices = window.speechSynthesis.getVoices();
-      const viVoices = voices.filter(v => v.lang === 'vi-VN');
-      if (viVoices.length > 0) {
-        const femaleVoice = viVoices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('nữ'));
-        msg.voice = femaleVoice || viVoices[0];
-      }
-
-      msg.rate = 1;
-      msg.pitch = 1.1;
-      msg.volume = 1;
-
-      window.speechSynthesis.speak(msg);
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'vi-VN';
+    const voices = window.speechSynthesis.getVoices();
+    const viVoices = voices.filter(v => v.lang === 'vi-VN');
+    if (viVoices.length > 0) {
+      const femaleVoice = viVoices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('nữ'));
+      msg.voice = femaleVoice || viVoices[0];
     }
+    msg.rate = 1;
+    msg.pitch = 1.1;
+    msg.volume = 1;
+    window.speechSynthesis.speak(msg);
   }
+}
 
-  function onEmotionChanged(newEmotion) {
-    if (newEmotion === lastEmotion) return;
-    if (emotionTimeout) clearTimeout(emotionTimeout);
-
-    emotionTimeout = setTimeout(() => {
-      lastEmotion = newEmotion;
-      document.getElementById('emotionText').innerText = 'Cảm xúc: ' + newEmotion;
-
-      let message = '';
-      if (newEmotion === 'vui') {
-        message = 'Bạn đang vui. Mình rất vui khi thấy bạn như vậy!';
-      } else if (newEmotion === 'buồn') {
-        message = 'Bạn đang buồn. Mình luôn ở đây nếu bạn muốn chia sẻ.';
-      } else if (newEmotion === 'lo lắng') {
-        message = 'Bạn đang lo lắng. Hãy hít thở sâu và nói cho mình biết điều gì đang làm bạn lo.';
-      } else {
-        message = 'Cảm xúc của bạn là ' + newEmotion;
-      }
-
-      speak(message);
-    }, EMOTION_STABLE_TIME);
-  }
-
-  // Ví dụ minh họa: thay đổi cảm xúc bằng nút
-  function simulateEmotion(emotion) {
-    onEmotionChanged(emotion);
-  }
-</script>
-
-<div style="margin-top:10px;">
-  <button onclick="simulateEmotion('vui')">😊 Vui</button>
-  <button onclick="simulateEmotion('buồn')">😢 Buồn</button>
-  <button onclick="simulateEmotion('lo lắng')">😟 Lo lắng</button>
-</div>
-
-</body>
+function onEmotionChanged(newEmotion) {
+  if (newEmotion === lastEmotion) return;
+  if (emotionTimeout) clearTimeout(emotionTimeout);
+  emotionTimeout = setTimeout(() => {
+    lastEmotion = newEmotion;
+    document.getElementById('emotionText').innerText = 'Cảm xúc: ' + newEmotion;
+    let message = '';
+    if (newEmotion === 'vui') {
+      message = 'Bạn đang vui. Mình rất vui khi thấy bạn như vậy!';
+    } else if (newEmotion === 'buồn') {
+      message = 'Bạn đang buồn. Mình luôn ở đây nếu bạn muốn chia sẻ.';
+    } else if (newEmotion === 'lo lắng') {
+      message = 'Bạn đang lo lắng. Hãy hít thở sâu và nói cho mình biết điều gì đang làm bạn lo.';
+    } else {
+      message = 'Cảm xúc của bạn là ' + newEmotion;
+    }
+    speak(message);
+  }, EMOTION_STABLE_TIME);
+}
+</script></body>
 </html>
