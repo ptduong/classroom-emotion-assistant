@@ -30,14 +30,17 @@
   </div>
   <div class="robot-action" id="robotAction"></div>
   <button id="startBtn" onclick="startAssistant()">Bắt đầu trò chuyện với Robot</button>
-  
-  https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest</script>
-  https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js</script>
-  https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js</script>
+
+  <!-- Thư viện AI -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
 
   <script>
     // Thay bằng link model của bạn
-    const imageModelURL = "https://teachablemachine.withgoogle.com/models/vwVERB4xC/";
+    <!-- const imageModelURL = "YOUR_IMAGE_MODEL_URL"; -->
+    <!-- const audioModelURL = "YOUR_AUDIO_MODEL_URL"; -->
+	const imageModelURL = "https://teachablemachine.withgoogle.com/models/vwVERB4xC/";
     const audioModelURL = "https://teachablemachine.withgoogle.com/models/TcB0ZWXJh/model.json";
     const audioMetadataURL = audioModelURL.replace("model.json", "metadata.json");
 
