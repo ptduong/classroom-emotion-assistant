@@ -121,5 +121,33 @@
       setTimeout(predictImageLoop, 1000); // Dự đoán mỗi giây
     }
   </script>
+
+<div style="margin-top: 20px;">
+  <h2>🎤 Trợ lý phát âm thanh</h2>
+  <button onclick="speakMessage(0)">Chào hỏi</button>
+  <button onclick="speakMessage(1)">Nhận diện cảm xúc</button>
+  <button onclick="speakMessage(2)">Phản hồi cảm xúc vui</button>
+  <button onclick="speakMessage(3)">Khuyến khích chia sẻ</button>
+  <button onclick="speakMessage(4)">Cảm ơn chia sẻ</button>
+  <button onclick="speakMessage(5)">Kết thúc trò chuyện</button>
+</div>
+
+<script>
+  const messages = [
+    "Xin chào! Mình là Trợ lý Tâm lý của bạn. Bạn muốn chia sẻ điều gì hôm nay không?",
+    "Mình đang nhận diện cảm xúc của bạn, vui lòng chờ một chút nhé.",
+    "Mình thấy bạn có vẻ đang vui. Bạn muốn nói về điều đó không?",
+    "Nếu bạn cảm thấy không ổn, hãy nói với mình nhé. Mình luôn ở đây để lắng nghe.",
+    "Cảm ơn bạn đã chia sẻ. Mình đã ghi nhận cảm xúc của bạn.",
+    "Cảm ơn bạn đã trò chuyện với mình. Chúc bạn một ngày tốt lành!"
+  ];
+
+  function speakMessage(index) {
+    const utter = new SpeechSynthesisUtterance(messages[index]);
+    utter.lang = 'vi-VN';
+    window.speechSynthesis.speak(utter);
+  }
+</script>
+
 </body>
 </html>
