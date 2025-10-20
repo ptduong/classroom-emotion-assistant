@@ -50,12 +50,26 @@
 
     // Hàm chuyển văn bản thành giọng nói
     function speak(text) {
-      if ('speechSynthesis' in window) {
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'vi-VN'; // Tiếng Việt
-        window.speechSynthesis.cancel(); // Dừng mọi phát hiện tại
-        window.speechSynthesis.speak(msg);
-      }
+	  if ('speechSynthesis' in window) {
+		const msg = new SpeechSynthesisUtterance(text);
+		msg.lang = 'vi-VN';
+
+		// Lấy danh sách voice tiếng Việt
+		const voices = window.speechSynthesis.getVoices();
+		const viVoices = voices.filter(v => v.lang === 'vi-VN');
+		if (viVoices.length > 0) {
+		  // Ưu tiên giọng nữ nếu có
+		  const femaleVoice = viVoices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('nữ'));
+		  msg.voice = femaleVoice || viVoices[0];
+		}
+
+		msg.rate = 1;    // tốc độ đọc tự nhiên (0.8 - 1.2)
+		msg.pitch = 1.1; // cao độ tươi vui
+		msg.volume = 1;  // âm lượng tối đa
+
+		window.speechSynthesis.cancel(); // Dừng mọi phát hiện tại
+		window.speechSynthesis.speak(msg);
+	  }
     }
 
     // Logic phản hồi của robot dựa trên cảm xúc
@@ -123,43 +137,3 @@
   </script>
 </body>
 </html>
-<div style="margin-top: 20px;">
-  <h2>🎤 Trợ lý phát âm thanh</h2>
-  <button onclick="speakMessage(0)">Chào hỏi</button>
-  <button onclick="speakMessage(1)">Nhận diện cảm xúc</button>
-  <button onclick="speakMessage(2)">Phản hồi cảm xúc vui</button>
-  <button onclick="speakMessage(3)">Khuyến khích chia sẻ</button>
-  <button onclick="speakMessage(4)">Cảm ơn chia sẻ</button>
-  <button onclick="speakMessage(5)">Kết thúc trò chuyện</button>
-</div>
-
-<script>
-  const messages = [
-    "Xin chào! Mình là Trợ lý Tâm lý của bạn. Bạn muốn chia sẻ điều gì hôm nay không?",
-    "Mình đang nhận diện cảm xúc của bạn, vui lòng chờ một chút nhé.",
-    "Mình thấy bạn có vẻ đang vui. Bạn muốn nói về điều đó không?",
-    "Nếu bạn cảm thấy không ổn, hãy nói với mình nhé. Mình luôn ở đây để lắng nghe.",
-    "Cảm ơn bạn đã chia sẻ. Mình đã ghi nhận cảm xúc của bạn.",
-    "Cảm ơn bạn đã trò chuyện với mình. Chúc bạn một ngày tốt lành!"
-  ];
-
-  function speakMessage(index) {
-    const utter = new SpeechSynthesisUtterance(messages[index]);
-    utter.lang = 'vi-VN';
-
-    const voices = window.speechSynthesis.getVoices();
-    const viVoices = voices.filter(v => v.lang === 'vi-VN');
-    if (viVoices.length > 0) {
-      const femaleVoice = viVoices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('nữ'));
-      utter.voice = femaleVoice || viVoices[0];
-    }
-
-    utter.rate = 1;
-    utter.pitch = 1.1;
-    utter.volume = 1;
-
-    window.speechSynthesis.speak(utter);
-  }
-
-  window.speechSynthesis.onvoiceschanged = () => {};
-</script>
