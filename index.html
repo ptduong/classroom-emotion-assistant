@@ -32,44 +32,10 @@
 <div class="robot-action" id="robotAction"></div>
 <button id="startBtn" onclick="startAssistant()">Bắt đầu trò chuyện với Robot</button>
 <!-- Thư viện AI -->
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest">
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
 <script>
-
-	let lastEmotion = null;
-	let emotionTimeout = null;
-	const EMOTION_STABLE_TIME = 5000;
-
-	function onEmotionChanged(newEmotion) {
-	  if (newEmotion === lastEmotion) return;
-	  if (emotionTimeout) clearTimeout(emotionTimeout);
-
-	  emotionTimeout = setTimeout(() => {
-		lastEmotion = newEmotion;
-		let emoji = '';
-		if (newEmotion === 'vui') emoji = '😊';
-		else if (newEmotion === 'buồn') emoji = '😢';
-		else if (newEmotion === 'lo lắng') emoji = '😟';
-		else emoji = '😐';
-
-		document.getElementById('emotionText').innerText = 'Cảm xúc: ' + newEmotion + ' ' + emoji;
-
-		let message = '';
-		if (newEmotion === 'vui') {
-		  message = 'Bạn đang vui. Mình rất vui khi thấy bạn như vậy!';
-		} else if (newEmotion === 'buồn') {
-		  message = 'Bạn đang buồn. Mình luôn ở đây nếu bạn muốn chia sẻ.';
-		} else if (newEmotion === 'lo lắng') {
-		  message = 'Bạn đang lo lắng. Hãy hít thở sâu và nói cho mình biết điều gì đang làm bạn lo.';
-		} else {
-		  message = 'Cảm xúc của bạn là ' + newEmotion;
-		}
-		speak(message);
-	  }, EMOTION_STABLE_TIME);
-	}
     // Thay bằng link model của bạn
     <!-- const imageModelURL = "YOUR_IMAGE_MODEL_URL"; -->
     <!-- const audioModelURL = "YOUR_AUDIO_MODEL_URL"; -->
@@ -154,5 +120,5 @@
       setTimeout(predictImageLoop, 1000); // Dự đoán mỗi giây
     }
   </script>
-<div id="emotionText">Cảm xúc: ...</div></body>
+</body>
 </html>
