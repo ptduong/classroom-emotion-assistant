@@ -46,6 +46,7 @@
 
     let imageModel, audioModel;
     let webcam, canvas, ctx;
+    let lastSpokenEmotion = ""; // Lưu cảm xúc đã phát âm thanh
 
     // Hàm chuyển văn bản thành giọng nói
     function speak(text) {
@@ -73,7 +74,12 @@
         response = "🤖 Robot: Mình luôn ở đây để lắng nghe bạn!";
       }
       actionDiv.innerHTML = response;
-      speak(response); // Phát ra loa
+
+      // Chỉ phát âm thanh khi cảm xúc thay đổi
+      if (emotion !== lastSpokenEmotion) {
+        speak(response);
+        lastSpokenEmotion = emotion;
+      }
     }
 
     async function startAssistant() {
