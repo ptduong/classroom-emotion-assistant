@@ -5,10 +5,9 @@
   <title>Emotion Recognition Assistant</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Thư viện AI -->
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
+  <!-- Thư viện AI -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
     #webcam-container, #label-container { margin-top: 20px; }
@@ -17,6 +16,10 @@
     #chat-log { height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
     #user-input { width: 80%; padding: 10px; }
     #send-btn { padding: 10px; }
+    #emotion-history { margin-top: 30px; }
+    #emotion-table { margin: 0 auto; border-collapse: collapse; width: 60%; }
+    #emotion-table th, #emotion-table td { border: 1px solid #ccc; padding: 8px; }
+    #emotion-table th { background: #f0f0f0; }
   </style>
 </head>
 <body>
@@ -26,6 +29,20 @@
   <div id="label-container"></div>
   <button type="button" onclick="init()">Start</button>
   <div id="robotRespond">Robot đang chờ nhận diện biểu cảm...</div>
+
+  <div id="emotion-history">
+    <h3>Lịch sử cảm xúc</h3>
+    <table id="emotion-table">
+      <thead>
+        <tr>
+          <th>Thời gian</th>
+          <th>Cảm xúc</th>
+        </tr>
+      </thead>
+      <tbody id="emotion-table-body">
+      </tbody>
+    </table>
+  </div>
 
   <div id="chat-box">
     <h3>Giao tiếp với Robot</h3>
@@ -37,6 +54,8 @@
   <script type="text/javascript">
     const URL = "https://teachablemachine.withgoogle.com/models/vwVERB4xC/";
     let model, webcam, labelContainer, maxPredictions;
+    let lastEmotion = "";
+    let lastEmotionTime = 0;
 
     async function init() {
       const modelURL = URL + "model.json";
@@ -79,12 +98,10 @@
       }
       let respondText = "";
       switch (maxClass) {
-        //case "Happy":
-		case "Class 1":
+        case "Happy":
           respondText = "😊 Robot nhận thấy bạn đang vui! Hãy giữ tinh thần tích cực nhé!";
           break;
-        //case "Sad":
-		case "Class 2":
+        case "Sad":
           respondText = "😢 Robot nhận thấy bạn đang buồn. Nếu cần chia sẻ, hãy nói với thầy cô hoặc bạn bè nhé!";
           break;
         case "Surprised":
@@ -97,6 +114,26 @@
           respondText = "🤖 Robot đang nhận diện biểu cảm của bạn...";
       }
       document.getElementById("robotRespond").innerText = respondText;
+
+      const now = Date.now();
+      if (maxClass !== lastEmotion || now - lastEmotionTime > 10000) {
+        addEmotionHistory(maxClass);
+        lastEmotion = maxClass;
+        lastEmotionTime = now;
+      }
+    }
+
+    function addEmotionHistory(emotion) {
+      const tableBody = document.getElementById("emotion-table-body");
+      const row = document.createElement("tr");
+      const timeCell = document.createElement("td");
+      const emotionCell = document.createElement("td");
+      const now = new Date();
+      timeCell.textContent = now.toLocaleString();
+      emotionCell.textContent = emotion;
+      row.appendChild(timeCell);
+      row.appendChild(emotionCell);
+      tableBody.appendChild(row);
     }
 
     function sendMessage() {
