@@ -24,20 +24,20 @@
   </style>
 </head>
 <body>
-  <h1>Emotion Recognition Assistant</h1>
-  <p>Using Teachable Machine Image Model</p>
+  <h1>🤖 Ery - Robot Trợ Lý Tâm Lý Học sinh</h1>
+  <p>2A8 - Minh Đăng, Minh Trúc, Thảo Nhiên</p>
   <div id="webcam-container"></div>
   <div id="label-container"></div>
   <div id="control-btns">
-    <button type="button" onclick="init()">Start</button>
-    <button type="button" onclick="stopRecognition()">Stop</button>
+    <button type="button" onclick="init()">Bắt đầu</button>
+    <button type="button" onclick="stopRecognition()">Kết thúc</button>
     <button type="button" onclick="clearEmotionHistory()">Xóa lịch sử cảm xúc</button>
     <button type="button" onclick="exportEmotionHistory()">Xuất lịch sử</button>
   </div>
-  <div id="robotRespond">Robot đang chờ nhận diện biểu cảm...</div>
+  <div id="robotRespond">Ery đang chờ bạn...</div>
 
   <div id="chat-box">
-    <h3>Giao tiếp với Robot</h3>
+    <h3>Giao tiếp với Ery</h3>
     <div id="chat-log"></div>
     <input type="text" id="user-input" placeholder="Nhập tin nhắn..." />
     <button id="send-btn" onclick="sendMessage()">Gửi</button>
@@ -96,7 +96,7 @@
       if (webcam) {
         webcam.stop();
       }
-      document.getElementById("robotRespond").innerText = "Robot đã dừng nhận diện biểu cảm.";
+      document.getElementById("robotRespond").innerText = "Ery đã dừng nhận diện biểu cảm.";
     }
 
     async function loop() {
@@ -122,19 +122,19 @@
       let respondText = "";
       switch (maxClass) {
         case "Happy":
-          respondText = "😊 Robot nhận thấy bạn đang vui! Hãy giữ tinh thần tích cực nhé!";
+          respondText = "😊 Ery nhận thấy bạn đang vui! Hãy giữ tinh thần tích cực nhé!";
           break;
         case "Sad":
-          respondText = "😢 Robot nhận thấy bạn đang buồn. Nếu cần chia sẻ, hãy nói với thầy cô hoặc bạn bè nhé!";
+          respondText = "😢 Ery nhận thấy bạn đang buồn. Nếu cần chia sẻ, hãy nói với thầy cô hoặc bạn bè nhé!";
           break;
         case "Surprised":
           respondText = "😮 Có điều gì làm bạn ngạc nhiên phải không?";
           break;
         case "Angry":
-          respondText = "😠 Robot nhận thấy bạn đang tức giận. Hãy hít thở sâu và bình tĩnh lại nhé!";
+          respondText = "😠 Ery nhận thấy bạn đang tức giận. Hãy hít thở sâu và bình tĩnh lại nhé!";
           break;
         default:
-          respondText = "🤖 Robot đang nhận diện biểu cảm của bạn...";
+          respondText = "🤖 Ery đang nhận diện biểu cảm của bạn...";
       }
       document.getElementById("robotRespond").innerText = respondText;
 
@@ -215,7 +215,7 @@
         userMsg.textContent = "Bạn: " + message;
         chatLog.appendChild(userMsg);
         const robotMsg = document.createElement("div");
-        robotMsg.textContent = "Robot: Cảm ơn bạn đã chia sẻ!";
+        robotMsg.textContent = "Ery: Cảm ơn bạn đã chia sẻ!";
         chatLog.appendChild(robotMsg);
         input.value = "";
         chatLog.scrollTop = chatLog.scrollHeight;
