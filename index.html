@@ -35,7 +35,7 @@
   </div>
 
   <script type="text/javascript">
-    const URL = "https://teachablemachine.withgoogle.com/models/YOUR_MODEL_URL/";
+    const URL = "https://teachablemachine.withgoogle.com/models/vwVERB4xC/";
     let model, webcam, labelContainer, maxPredictions;
 
     async function init() {
@@ -79,10 +79,12 @@
       }
       let respondText = "";
       switch (maxClass) {
-        case "Happy":
+        //case "Happy":
+		case "Class 1":
           respondText = "😊 Robot nhận thấy bạn đang vui! Hãy giữ tinh thần tích cực nhé!";
           break;
-        case "Sad":
+        //case "Sad":
+		case "Class 2":
           respondText = "😢 Robot nhận thấy bạn đang buồn. Nếu cần chia sẻ, hãy nói với thầy cô hoặc bạn bè nhé!";
           break;
         case "Surprised":
