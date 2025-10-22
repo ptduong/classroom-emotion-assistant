@@ -20,6 +20,7 @@
     #emotion-table { margin: 0 auto; border-collapse: collapse; width: 60%; }
     #emotion-table th, #emotion-table td { border: 1px solid #ccc; padding: 8px; }
     #emotion-table th { background: #f0f0f0; }
+    #control-btns { margin-top: 20px; }
   </style>
 </head>
 <body>
@@ -27,7 +28,12 @@
   <p>Using Teachable Machine Image Model</p>
   <div id="webcam-container"></div>
   <div id="label-container"></div>
-  <button type="button" onclick="init()">Start</button>
+  <div id="control-btns">
+    <button type="button" onclick="init()">Start</button>
+    <button type="button" onclick="stopRecognition()">Stop</button>
+    <button type="button" onclick="clearEmotionHistory()">Xóa lịch sử cảm xúc</button>
+    <button type="button" onclick="exportEmotionHistory()">Xuất lịch sử</button>
+  </div>
   <div id="robotRespond">Robot đang chờ nhận diện biểu cảm...</div>
 
   <div id="chat-box">
@@ -52,10 +58,11 @@
   </div>
 
   <script type="text/javascript">
-    const URL = "https://teachablemachine.withgoogle.com/models/vwVERB4xC/";
+    const URL = "https://teachablemachine.withgoogle.com/models/kBhMIHxeP/";
     let model, webcam, labelContainer, maxPredictions;
     let lastEmotion = "";
     let lastEmotionTime = 0;
+    let loopActive = false;
 
     async function init() {
       const modelURL = URL + "model.json";
@@ -68,18 +75,32 @@
       webcam = new tmImage.Webcam(200, 200, flip);
       await webcam.setup();
       await webcam.play();
-      window.requestAnimationFrame(loop);
 
+      document.getElementById("webcam-container").innerHTML = "";
       document.getElementById("webcam-container").appendChild(webcam.canvas);
+
       labelContainer = document.getElementById("label-container");
+      labelContainer.innerHTML = "";
       for (let i = 0; i < maxPredictions; i++) {
         labelContainer.appendChild(document.createElement("div"));
       }
 
+      loopActive = true;
+      window.requestAnimationFrame(loop);
+
       loadEmotionHistory();
     }
 
+    function stopRecognition() {
+      loopActive = false;
+      if (webcam) {
+        webcam.stop();
+      }
+      document.getElementById("robotRespond").innerText = "Robot đã dừng nhận diện biểu cảm.";
+    }
+
     async function loop() {
+      if (!loopActive) return;
       webcam.update();
       await predict();
       window.requestAnimationFrame(loop);
@@ -98,7 +119,6 @@
           maxClass = className;
         }
       }
-
       let respondText = "";
       switch (maxClass) {
         case "Happy":
@@ -128,24 +148,31 @@
 
     function addEmotionHistory(emotion) {
       const tableBody = document.getElementById("emotion-table-body");
+      const now = new Date();
+      const timeStr = now.toLocaleString();
+
       const row = document.createElement("tr");
       const timeCell = document.createElement("td");
       const emotionCell = document.createElement("td");
-      const now = new Date();
-      timeCell.textContent = now.toLocaleString();
+      timeCell.textContent = timeStr;
       emotionCell.textContent = emotion;
       row.appendChild(timeCell);
       row.appendChild(emotionCell);
-      tableBody.appendChild(row);
+      if (tableBody.firstChild) {
+        tableBody.insertBefore(row, tableBody.firstChild);
+      } else {
+        tableBody.appendChild(row);
+      }
 
-      const history = JSON.parse(localStorage.getItem("emotionHistory") || "[]");
-      history.push({ time: now.toLocaleString(), emotion: emotion });
+      let history = JSON.parse(localStorage.getItem("emotionHistory") || "[]");
+      history.unshift({ time: timeStr, emotion: emotion });
       localStorage.setItem("emotionHistory", JSON.stringify(history));
     }
 
     function loadEmotionHistory() {
       const history = JSON.parse(localStorage.getItem("emotionHistory") || "[]");
       const tableBody = document.getElementById("emotion-table-body");
+      tableBody.innerHTML = "";
       history.forEach(entry => {
         const row = document.createElement("tr");
         const timeCell = document.createElement("td");
@@ -156,6 +183,27 @@
         row.appendChild(emotionCell);
         tableBody.appendChild(row);
       });
+    }
+
+    function clearEmotionHistory() {
+      localStorage.removeItem("emotionHistory");
+      document.getElementById("emotion-table-body").innerHTML = "";
+    }
+
+    function exportEmotionHistory() {
+      const history = JSON.parse(localStorage.getItem("emotionHistory") || "[]");
+      let csv = "Thời gian,Cảm xúc\n";
+      history.forEach(entry => {
+        csv += `"${entry.time}","${entry.emotion}"\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "emotion_history.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
 
     function sendMessage() {
