@@ -16,7 +16,7 @@
     #chat-log { height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
     #user-input { width: 80%; padding: 10px; }
     #send-btn { padding: 10px; }
-    #emotion-history { margin-top: 30px; }
+    #emotion-history { margin-top: 40px; }
     #emotion-table { margin: 0 auto; border-collapse: collapse; width: 60%; }
     #emotion-table th, #emotion-table td { border: 1px solid #ccc; padding: 8px; }
     #emotion-table th { background: #f0f0f0; }
@@ -30,6 +30,13 @@
   <button type="button" onclick="init()">Start</button>
   <div id="robotRespond">Robot đang chờ nhận diện biểu cảm...</div>
 
+  <div id="chat-box">
+    <h3>Giao tiếp với Robot</h3>
+    <div id="chat-log"></div>
+    <input type="text" id="user-input" placeholder="Nhập tin nhắn..." />
+    <button id="send-btn" onclick="sendMessage()">Gửi</button>
+  </div>
+
   <div id="emotion-history">
     <h3>Lịch sử cảm xúc</h3>
     <table id="emotion-table">
@@ -42,13 +49,6 @@
       <tbody id="emotion-table-body">
       </tbody>
     </table>
-  </div>
-
-  <div id="chat-box">
-    <h3>Giao tiếp với Robot</h3>
-    <div id="chat-log"></div>
-    <input type="text" id="user-input" placeholder="Nhập tin nhắn..." />
-    <button id="send-btn" onclick="sendMessage()">Gửi</button>
   </div>
 
   <script type="text/javascript">
@@ -75,6 +75,8 @@
       for (let i = 0; i < maxPredictions; i++) {
         labelContainer.appendChild(document.createElement("div"));
       }
+
+      loadEmotionHistory();
     }
 
     async function loop() {
@@ -96,6 +98,7 @@
           maxClass = className;
         }
       }
+
       let respondText = "";
       switch (maxClass) {
         case "Happy":
@@ -134,6 +137,25 @@
       row.appendChild(timeCell);
       row.appendChild(emotionCell);
       tableBody.appendChild(row);
+
+      const history = JSON.parse(localStorage.getItem("emotionHistory") || "[]");
+      history.push({ time: now.toLocaleString(), emotion: emotion });
+      localStorage.setItem("emotionHistory", JSON.stringify(history));
+    }
+
+    function loadEmotionHistory() {
+      const history = JSON.parse(localStorage.getItem("emotionHistory") || "[]");
+      const tableBody = document.getElementById("emotion-table-body");
+      history.forEach(entry => {
+        const row = document.createElement("tr");
+        const timeCell = document.createElement("td");
+        const emotionCell = document.createElement("td");
+        timeCell.textContent = entry.time;
+        emotionCell.textContent = entry.emotion;
+        row.appendChild(timeCell);
+        row.appendChild(emotionCell);
+        tableBody.appendChild(row);
+      });
     }
 
     function sendMessage() {
