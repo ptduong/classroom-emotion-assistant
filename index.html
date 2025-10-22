@@ -1,106 +1,113 @@
-<!DOCTYPE html>
 
+<!DOCTYPE html>
 <html>
 <head>
-<title>Robot Trợ Lý Tâm Lý Học sinh</title>
-<meta charset="utf-8"/>
-<style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #f0f8ff; }
-    .robot-header { font-size: 2em; margin-top: 20px; color: #2a6ebb; }
-    video { width: 320px; height: 240px; border: 2px solid #2a6ebb; margin-top: 10px; }
-    .emotion-box { display: flex; justify-content: center; gap: 40px; margin-top: 20px; }
-    .emotion-result { border: 2px solid #2a6ebb; border-radius: 10px; padding: 20px; width: 250px; background: #fff; }
-    .emotion-label { font-size: 1.5em; color: #e67e22; }
-    .robot-action { margin-top: 30px; font-size: 1.2em; color: #16a085; }
-    #startBtn { margin-top: 20px; padding: 10px 30px; font-size: 1.2em; background: #2a6ebb; color: #fff; border: none; border-radius: 8px; }
+  <title>Emotion Recognition Assistant</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    #webcam-container, #label-container { margin-top: 20px; }
+    #robotRespond { margin-top: 30px; font-size: 1.2em; color: #0078D7; }
+    #chat-box { margin-top: 40px; border-top: 1px solid #ccc; padding-top: 20px; }
+    #chat-log { height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    #user-input { width: 80%; padding: 10px; }
+    #send-btn { padding: 10px; }
   </style>
 </head>
 <body>
-<div class="robot-header">🤖 Robot Trợ Lý Tâm Lý Học sinh</div>
-<video autoplay="" id="webcam" playsinline=""></video>
-<canvas height="240" id="canvas" style="display:none;" width="320"></canvas>
-<div class="emotion-box">
-<div class="emotion-result">
-<div>Biểu cảm khuôn mặt</div>
-<div class="emotion-label" id="imageEmotion">Đang nhận diện...</div>
-</div>
-<div class="emotion-result">
-<div>Giọng nói</div>
-<div class="emotion-label" id="audioEmotion">Đang nhận diện...</div>
-</div>
-</div>
-<div class="robot-action" id="robotAction"></div>
-<button id="startBtn" onclick="startAssistant()">Bắt đầu trò chuyện với Robot</button>
-<!-- Thư viện AI -->
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
-<script>
-    // Thay bằng link model của bạn
-    <!-- const imageModelURL = "YOUR_IMAGE_MODEL_URL"; -->
-    <!-- const audioModelURL = "YOUR_AUDIO_MODEL_URL"; -->
-	const imageModelURL = "https://teachablemachine.withgoogle.com/models/vwVERB4xC/";
-    const audioModelURL = "https://teachablemachine.withgoogle.com/models/TcB0ZWXJh/model.json";
-    const audioMetadataURL = audioModelURL.replace("model.json", "metadata.json");
+  <h1>Emotion Recognition Assistant</h1>
+  <p>Using Teachable Machine Image Model</p>
+  <div id="webcam-container"></div>
+  <div id="label-container"></div>
+  <button type="button" onclick="init()">Start</button>
+  <div id="robotRespond">Robot đang chờ nhận diện biểu cảm...</div>
 
-    let imageModel, audioModel;
-    let webcam, canvas, ctx;
-	
-    // Logic phản hồi của robot dựa trên cảm xúc
-    function robotRespond(emotion) {
-      const actionDiv = document.getElementById("robotAction");
-      let response = "";
-      if (emotion === "Buồn" || emotion === "Sad") {
-        response = "🤗 Robot: Bạn đang buồn à? Hãy kể cho mình nghe nhé! Mình sẽ kể chuyện vui cho bạn nghe!";
-      } else if (emotion === "Lo lắng" || emotion === "Anxious") {
-        response = "🤖 Robot: Đừng lo, mọi chuyện sẽ ổn thôi! Hít thở sâu nào!";
-      } else if (emotion === "Vui" || emotion === "Happy") {
-        response = "😄 Robot: Tuyệt vời! Bạn đang rất vui, hãy lan tỏa năng lượng tích cực nhé!";
-      } else if (emotion === "Tức giận" || emotion === "Angry") {
-        response = "😌 Robot: Khi nào bạn bình tĩnh lại, mình sẽ cùng bạn chơi trò chơi thư giãn nhé!";
-      } else {
-        response = "🤖 Robot: Mình luôn ở đây để lắng nghe bạn!";
+  <div id="chat-box">
+    <h3>Giao tiếp với Robot</h3>
+    <div id="chat-log"></div>
+    <input type="text" id="user-input" placeholder="Nhập tin nhắn..." />
+    <button id="send-btn" onclick="sendMessage()">Gửi</button>
+  </div>
+
+  <script type="text/javascript">
+    const URL = "https://teachablemachine.withgoogle.com/models/vwVERB4xC/";
+    let model, webcam, labelContainer, maxPredictions;
+
+    async function init() {
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
+
+      model = await tmImage.load(modelURL, metadataURL);
+      maxPredictions = model.getTotalClasses();
+
+      const flip = true;
+      webcam = new tmImage.Webcam(200, 200, flip);
+      await webcam.setup();
+      await webcam.play();
+      window.requestAnimationFrame(loop);
+
+      document.getElementById("webcam-container").appendChild(webcam.canvas);
+      labelContainer = document.getElementById("label-container");
+      for (let i = 0; i < maxPredictions; i++) {
+        labelContainer.appendChild(document.createElement("div"));
       }
-      actionDiv.innerHTML = response;
     }
 
-    async function startAssistant() {
-      webcam = document.getElementById("webcam");
-      canvas = document.getElementById("canvas");
-      ctx = canvas.getContext("2d");
-
-      // Khởi động webcam
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      webcam.srcObject = stream;
-
-      // Load mô hình hình ảnh
-      imageModel = await tmImage.load(imageModelURL + "model.json", imageModelURL + "metadata.json");
-
-      // Load mô hình âm thanh
-      audioModel = await speechCommands.create("BROWSER_FFT", undefined, audioModelURL, audioMetadataURL);
-      await audioModel.ensureModelLoaded();
-
-      // Nhận diện cảm xúc qua âm thanh
-      audioModel.listen(result => {
-        const scores = result.scores;
-        const labels = audioModel.wordLabels();
-        const topIndex = scores.indexOf(Math.max(...scores));
-        const audioEmotion = labels[topIndex];
-        document.getElementById("audioEmotion").innerText = audioEmotion;
-        robotRespond(audioEmotion);
-      }, { probabilityThreshold: 0.75 });
-
-      // Nhận diện cảm xúc qua hình ảnh
-      predictImageLoop();
+    async function loop() {
+      webcam.update();
+      await predict();
+      window.requestAnimationFrame(loop);
     }
 
-    async function predictImageLoop() {
-      ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
-      const prediction = await imageModel.predict(canvas);
-      const topPrediction = prediction.reduce((prev, current) => (prev.probability > current.probability) ? prev : current);
-      document.getElementById("imageEmotion").innerText = topPrediction.className;
-      robotRespond(topPrediction.className);
-      setTimeout(predictImageLoop, 1000); // Dự đoán mỗi giây
+    async function predict() {
+      const prediction = await model.predict(webcam.canvas);
+      let maxProb = 0;
+      let maxClass = "";
+      for (let i = 0; i < maxPredictions; i++) {
+        const prob = prediction[i].probability;
+        const className = prediction[i].className;
+        labelContainer.childNodes[i].innerHTML = className + ": " + (prob * 100).toFixed(2) + "%";
+        if (prob > maxProb) {
+          maxProb = prob;
+          maxClass = className;
+        }
+      }
+      let respondText = "";
+      switch (maxClass) {
+        case "Happy":
+          respondText = "😊 Robot nhận thấy bạn đang vui! Hãy giữ tinh thần tích cực nhé!";
+          break;
+        case "Sad":
+          respondText = "😢 Robot nhận thấy bạn đang buồn. Nếu cần chia sẻ, hãy nói với thầy cô hoặc bạn bè nhé!";
+          break;
+        case "Surprised":
+          respondText = "😮 Có điều gì làm bạn ngạc nhiên phải không?";
+          break;
+        case "Angry":
+          respondText = "😠 Robot nhận thấy bạn đang tức giận. Hãy hít thở sâu và bình tĩnh lại nhé!";
+          break;
+        default:
+          respondText = "🤖 Robot đang nhận diện biểu cảm của bạn...";
+      }
+      document.getElementById("robotRespond").innerText = respondText;
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("user-input");
+      const chatLog = document.getElementById("chat-log");
+      const message = input.value.trim();
+      if (message !== "") {
+        const userMsg = document.createElement("div");
+        userMsg.textContent = "Bạn: " + message;
+        chatLog.appendChild(userMsg);
+        const robotMsg = document.createElement("div");
+        robotMsg.textContent = "Robot: Cảm ơn bạn đã chia sẻ!";
+        chatLog.appendChild(robotMsg);
+        input.value = "";
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
     }
   </script>
 </body>
