@@ -32,7 +32,6 @@
     <button type="button" onclick="init()">Bắt đầu</button>
     <button type="button" onclick="stopRecognition()">Kết thúc</button>
     <button type="button" onclick="clearEmotionHistory()">Xóa lịch sử cảm xúc</button>
-    <button type="button" onclick="exportEmotionHistory()">Xuất lịch sử</button>
   </div>
   <div id="robotRespond">Ery đang chờ bạn...</div>
 
@@ -188,22 +187,6 @@
     function clearEmotionHistory() {
       localStorage.removeItem("emotionHistory");
       document.getElementById("emotion-table-body").innerHTML = "";
-    }
-
-    function exportEmotionHistory() {
-      const history = JSON.parse(localStorage.getItem("emotionHistory") || "[]");
-      let csv = "Thời gian,Cảm xúc\n";
-      history.forEach(entry => {
-        csv += `"${entry.time}","${entry.emotion}"\n`;
-      });
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "emotion_history.csv";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
     }
 
     function sendMessage() {
