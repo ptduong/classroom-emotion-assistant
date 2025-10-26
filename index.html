@@ -33,7 +33,7 @@
     <button type="button" onclick="stopRecognition()">Kết thúc</button>
     <button type="button" onclick="clearEmotionHistory()">Xóa lịch sử cảm xúc</button>
   </div>
-  <div id="robotRespond">Ery đang chờ bạn. Hãy bấm "Bắt đầu" để kết nối với Ery nhé.</div>
+  <div id="robotRespond">Ery luôn bên cạnh bạn. Hãy bấm "Bắt đầu" để kết nối với Ery nhé.</div>
 
   <div id="chat-box">
     <h3>Giao tiếp với Ery</h3>
@@ -120,16 +120,16 @@
       }
       let respondText = "";
       switch (maxClass) {
-        case "Happy":
+        case "Vui":
           respondText = "😊 Ery nhận thấy bạn đang vui! Hãy giữ tinh thần tích cực nhé!";
           break;
-        case "Sad":
+        case "Buồn":
           respondText = "😢 Ery nhận thấy bạn đang buồn. Nếu cần chia sẻ, hãy nói với thầy cô hoặc bạn bè nhé!";
           break;
-        case "Surprised":
+        case "Ngạc nhiên":
           respondText = "😮 Có điều gì làm bạn ngạc nhiên phải không?";
           break;
-        case "Angry":
+        case "Tức giận":
           respondText = "😠 Ery nhận thấy bạn đang tức giận. Hãy hít thở sâu và bình tĩnh lại nhé!";
           break;
         default:
