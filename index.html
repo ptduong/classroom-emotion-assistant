@@ -138,7 +138,7 @@
       document.getElementById("robotRespond").innerText = respondText;
 
       const now = Date.now();
-      if (maxClass !== lastEmotion || now - lastEmotionTime > 10000) {
+      if (((maxClass !== lastEmotion) & (now - lastEmotionTime > 3000)) || now - lastEmotionTime > 10000) {
         addEmotionHistory(maxClass);
         lastEmotion = maxClass;
         lastEmotionTime = now;
